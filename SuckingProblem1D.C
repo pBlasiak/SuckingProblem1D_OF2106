@@ -5,21 +5,6 @@
     \\  /    A nd           | Copyright (C) 1991-2008 OpenCFD Ltd.
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-2010-08-02 Eelco van Vliet: 1st public version of Stefan1DInterfacePosition:
-  http://www.cfd-online.com/Forums/openfoam-solving/66705-wallheatflux-bc-not-constant-after-restart.html#post269812
-
-2012-05-21 Eelco van Vliet:
-  Quoting: http://www.cfd-online.com/Forums/openfoam-post-processing/101972-wallheatflux-utility-incompressible-case.html#post362191
-  «modified the standard wallHeatflux utility which comes default with OF into
-  a version for incompressible flows. Also removed a bug out of the code.»
-
-2012-06-26 Eelco van Vliet:
-  Quoting: http://www.cfd-online.com/Forums/openfoam-post-processing/101972-wallheatflux-utility-incompressible-case.html#post368330
-  «p is now not required anymore.»
-
-2014-06-22: Bruno Santos: Adapted to OpenFOAM 2.2.x.
-
--------------------------------------------------------------------------------
 License
     This file is a derivative work of OpenFOAM.
 
@@ -166,7 +151,7 @@ int main(int argc, char *argv[])
     Info<< "Number of iterations: " << iter << endl;
 	Info<< "epsilon = " << epsilon << endl;
 
-	OFstream IFfile("IFposition.txt");
+	OFstream IFfile("SuckingProblem_IFposition.txt");
 	IFfile << "Time [s]\t" << "Numerical [m]\t" << "Analytical [m]\t" << "Error [%]" << endl;
 
 
@@ -214,7 +199,7 @@ int main(int argc, char *argv[])
 				<< "%)"
 				<< endl;
 
-	    	Info<< "\nSaving the results to IFposition.txt\n" << endl;
+	    	Info<< "\nSaving the results to SuckingProblem_IFposition.txt\n" << endl;
 
 			IFfile << runTime.timeName() 
 	  		     << "\t" 
@@ -226,35 +211,35 @@ int main(int argc, char *argv[])
 						mag(analyticalInterfacePosition.value() + VSMALL)*100
 	  			 << endl;
 		}
-		else
-		{
-			Info<<"Interface position for time " 
-				<< runTime.timeName() 
-				<< " is equal to: " 
-				<< interfacePosition.value() 
-				<< " [m]"
-				<< " (error: "
-				<< mag(interfacePosition.value() - X(epsilon, k1, rho1, cp1, runTime.value()).value())/
-						mag(X(epsilon, k1, rho1, cp1, runTime.value()).value() + VSMALL)*100
-				<< "%)"
-				<< endl;
+		//else
+		//{
+		//	Info<<"Interface position for time " 
+		//		<< runTime.timeName() 
+		//		<< " is equal to: " 
+		//		<< interfacePosition.value() 
+		//		<< " [m]"
+		//		<< " (error: "
+		//		<< mag(interfacePosition.value() - X(epsilon, k1, rho1, cp1, runTime.value()).value())/
+		//				mag(X(epsilon, k1, rho1, cp1, runTime.value()).value() + VSMALL)*100
+		//		<< "%)"
+		//		<< endl;
 
-	    	Info<< "\nSaving the results to IFposition.txt\n" << endl;
+	    //	Info<< "\nSaving the results to IFposition.txt\n" << endl;
 
-			IFfile << runTime.timeName() 
-	  		     << "\t" 
-	  			 << interfacePosition.value() 
-	  		     << "\t" 
-	  			 << X(epsilon, k1, rho1, cp1, runTime.value()).value() 
-	  		     << "\t" 
-				 << mag(interfacePosition.value() - X(epsilon, k1, rho1, cp1, runTime.value()).value())/
-						mag(X(epsilon, k1, rho1, cp1, runTime.value()).value() + VSMALL)*100
-	  			 << endl;
-		}
+		//	IFfile << runTime.timeName() 
+	  	//	     << "\t" 
+	  	//		 << interfacePosition.value() 
+	  	//	     << "\t" 
+	  	//		 << X(epsilon, k1, rho1, cp1, runTime.value()).value() 
+	  	//	     << "\t" 
+		//		 << mag(interfacePosition.value() - X(epsilon, k1, rho1, cp1, runTime.value()).value())/
+		//				mag(X(epsilon, k1, rho1, cp1, runTime.value()).value() + VSMALL)*100
+	  	//		 << endl;
+		//}
 
     }
 
-	OFstream Tfile("T_SuckingProblem.txt");
+	OFstream Tfile("SuckingProblem_T.txt");
 	Tfile << "Time [s]\t"  << "x [m]\t" << "Numerical [m]\t" << "Analytical [m]\t" << "Error [%]" << endl;
 
 	if (phaseChangeType == "evaporation")
@@ -277,7 +262,7 @@ int main(int argc, char *argv[])
 		dimensionedScalar alTau = k1/rho1/cp1*tau;
 		dimensionedScalar analyticalInterfacePosition = X(epsilon,k2, rho2, cp2, runTime.value());
 		
-	   	Info<< "\nSaving the results for temperature to T_SuckingProblem.txt\n" << endl;
+	   	Info<< "\nSaving the results for temperature to SuckingProblem_T.txt\n" << endl;
 		forAll(analyticalTemperature, celli)
 		{
 			x[celli] = analyticalTemperature.mesh().C()[celli].component(vector::X);
@@ -306,7 +291,7 @@ int main(int argc, char *argv[])
 				 		analyticalTemperature[celli]*100
 	  			 << endl;
 		}
-		analyticalTemperature.write();
+		//analyticalTemperature.write();
 	}
 
 	//if (phaseChangeType == "condensation")
