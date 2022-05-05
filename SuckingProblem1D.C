@@ -113,18 +113,19 @@ int main(int argc, char *argv[])
 
 	if (phaseChangeType == "evaporation")
 	{
-		SquareBracketTerm = ((Tinf-TSat)*cp2*k1*Foam::sqrt(alpha2)
-			*Foam::exp(-epsilon*epsilon*rho2*rho2*alpha2/rho1/rho1/alpha1))
-				/(hEvap*k2*Foam::sqrt(Foam::constant::mathematical::pi*alpha1)
-					*Foam::erfc(epsilon*rho2*Foam::sqrt(alpha2)/rho1/Foam::sqrt(alpha1)));
-		LHS = cp2*(Tw - TSat)/hEvap/Foam::sqrt(Foam::constant::mathematical::pi) 
-			+ SquareBracketTerm*Foam::exp(epsilon*epsilon)*Foam::erf(epsilon);
+		do 
+		{
+			epsilonPrev = epsilon;		
+			SquareBracketTerm = ((Tinf-TSat)*cp2*k1*Foam::sqrt(alpha2)
+				*Foam::exp(-epsilon*epsilon*rho2*rho2*alpha2/rho1/rho1/alpha1))
+					/(hEvap*k2*Foam::sqrt(Foam::constant::mathematical::pi*alpha1)
+						*Foam::erfc(epsilon*rho2*Foam::sqrt(alpha2)/rho1/Foam::sqrt(alpha1)));
+			LHS = cp2*(Tw - TSat)/hEvap/Foam::sqrt(Foam::constant::mathematical::pi) 
+				+ SquareBracketTerm*Foam::exp(epsilon*epsilon)*Foam::erf(epsilon);
+			epsilon -= func(epsilon, LHS.value())/derivFunc(epsilon);	
+			iter++;
+		} while ( mag(epsilon - epsilonPrev) > tol && iter < maxIterNr );
 	}
-	// condensation not implemented
-	//else if (phaseChangeType == "condensation")
-	//{
-	//	LHS = cp1*(TSat - Tw)/hEvap/Foam::sqrt(Foam::constant::mathematical::pi);
-	//}
 	else
 	{
 		FatalErrorIn("SuckingProblem1D") 
@@ -133,20 +134,6 @@ int main(int argc, char *argv[])
 			<< nl
 			<< exit(FatalError);
 	}
-
-	
-	do 
-	{
-		epsilonPrev = epsilon;		
-		SquareBracketTerm = ((Tinf-TSat)*cp2*k1*Foam::sqrt(alpha2)
-			*Foam::exp(-epsilon*epsilon*rho2*rho2*alpha2/rho1/rho1/alpha1))
-				/(hEvap*k2*Foam::sqrt(Foam::constant::mathematical::pi*alpha1)
-					*Foam::erfc(epsilon*rho2*Foam::sqrt(alpha2)/rho1/Foam::sqrt(alpha1)));
-		LHS = cp2*(Tw - TSat)/hEvap/Foam::sqrt(Foam::constant::mathematical::pi) 
-			+ SquareBracketTerm*Foam::exp(epsilon*epsilon)*Foam::erf(epsilon);
-		epsilon -= func(epsilon, LHS.value())/derivFunc(epsilon);	
-		iter++;
-	} while ( mag(epsilon - epsilonPrev) > tol && iter < maxIterNr );
 
     Info<< "Number of iterations: " << iter << endl;
 	Info<< "epsilon = " << epsilon << endl;
